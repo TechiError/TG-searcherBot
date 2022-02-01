@@ -9,7 +9,7 @@ if not os.getenv("BOT_TOKEN"):
     os._exit()
 
 client = TelegramClient("bot", 6, "eb06d4abfb49dc3eeb1aeb98ae0f581e")
-client.start(bot_token=token)
+client.start(bot_token=os.getenv("BOT_TOKEN"))
 print("Bot started")
 
 @client.on(telethon.events.NewMessage(pattern="^/start"))
