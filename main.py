@@ -1,22 +1,23 @@
-import telethon
-from telethon.tl.custom import Button
-from telethon import TelegramClient
+from telethon import TelegramClient, Button, events
 import aiohttp
-import re, os
+import re
+from decouple import config
 
-if not os.getenv("BOT_TOKEN"):
-    print("Please provide your bot token on BOT_TOKEN environment variable")
-    os._exit()
+try:
+    BOT_TOKEN = config("BOT_TOKEN")
+except Exception as e:
+    print("Environment Variable Not Found")
+    print("plz set bot token")
 
 client = TelegramClient("bot", 6, "eb06d4abfb49dc3eeb1aeb98ae0f581e")
-client.start(bot_token=os.getenv("BOT_TOKEN"))
-print("Bot started")
+client.start(bot_token=BOT_TOKEN)
+print("Bot started..")
 
-@client.on(telethon.events.NewMessage(pattern="^/start"))
+@client.on(events.NewMessage(incoming=True, pattern="^/start"))
 async def start(event):
     await event.reply("Hello, I'm a bot to search chats and channels from given query!", buttons=[Button.url("Source", "https://github.com/TechiError/TG-searcherBot"), Button.url("Join @TechiError", "https://t.me/TechiError")])
 
-@client.on(telethon.events.NewMessage(pattern="^/search"))
+@client.on(events.NewMessage(incoming=True, pattern="^/search"))
 async def search(event):
     msg = await event.respond("Searching...")
     async with aiohttp.ClientSession() as session:
@@ -38,11 +39,11 @@ async def search(event):
                     # remove duplicates
                     continue
                 result += f"{title}\n{link}\n\n"
-            prev_and_next_btns = [Button.inline("▶️Next▶️", data=f"next {start+10} {event.text.split()[1]}")]
+            prev_and_next_btns = [Button.inline("➡️Next➡️", data=f"next {start+10} {event.text.split()[1]}")]
             await msg.edit(result, link_preview=False, buttons=prev_and_next_btns)
             await session.close()
 
-@client.on(telethon.events.CallbackQuery(data=re.compile(r"prev (.*) (.*)")))
+@client.on(events.CallbackQuery(data=re.compile(r"prev (.*) (.*)")))
 async def prev(event):
     start = int(event.data.split()[1])
     async with aiohttp.ClientSession() as session:
@@ -64,11 +65,11 @@ async def prev(event):
                     # remove duplicates
                     continue
                 result += f"{title}\n{link}\n\n"
-            prev_and_next_btns = [Button.inline("◀️Prev◀️", data=f"prev {start-10} {event.data.split()[2].decode('utf-8')}"), Button.inline("▶️Next▶️", data=f"next {start+10} {event.data.split()[2].decode('utf-8')}")]
+            prev_and_next_btns = [Button.inline("⬅️Prev⬅️", data=f"prev {start-10} {event.data.split()[2].decode('utf-8')}"), Button.inline("▶️Next▶️", data=f"next {start+10} {event.data.split()[2].decode('utf-8')}")]
             await event.edit(result, link_preview=False, buttons=prev_and_next_btns)
             await session.close()
 
-@client.on(telethon.events.CallbackQuery(data=re.compile(r"next (.*) (.*)")))
+@client.on(events.CallbackQuery(data=re.compile(r"next (.*) (.*)")))
 async def next(event):
     start = int(event.data.split()[1])
     async with aiohttp.ClientSession() as session:
