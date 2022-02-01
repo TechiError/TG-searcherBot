@@ -1,0 +1,27 @@
+{
+    "name": "TG Searcher Bot",
+    "description": "Search any channel/chat from keyword, by @TechiError.",
+    "logo": "",
+    "keywords": [
+        "telegram",
+        "telethon",
+        "telegram-bot",
+        "botzhub",
+        "techierror",
+        "searcher"
+    ],
+    "repository": "https://github.com/xditya/filestorepriv",
+    "website": "https://github.com/TechiError",
+    "success_url": "https://github.com/TechiError",
+    "env": {
+        "BOT_TOKEN": {
+            "description": "Bot token, get it from @BotFather.",
+            "value": ""
+        }
+    },
+    "buildpacks": [
+        {
+            "url": "heroku/python"
+        }
+    ]
+}
