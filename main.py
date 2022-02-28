@@ -1,12 +1,13 @@
 import telethon
 from telethon.tl.custom import Button
 from telethon import TelegramClient
+from decouple import config
 import aiohttp
 import re, os
 
-if not os.getenv("BOT_TOKEN"):
-    print("Please provide your bot token on BOT_TOKEN environment variable")
-    os._exit()
+if not config("BOT_TOKEN"):
+    print("Please provide your bot token on BOT_TOKEN environment variable or add in .env file")
+    os._exit(1)
 
 client = TelegramClient("bot", 6, "eb06d4abfb49dc3eeb1aeb98ae0f581e")
 client.start(bot_token=os.getenv("BOT_TOKEN"))
@@ -25,6 +26,8 @@ async def search(event):
             response = await r.json()
             result = ""
             
+            if not response.get("items"):
+                return await msg.edit("No results found!")
             for item in response["items"]:
                 title = item["title"]
                 link = item["link"]
@@ -49,7 +52,7 @@ async def prev(event):
         async with session.get(f"https://content-customsearch.googleapis.com/customsearch/v1?cx=ec8db9e1f9e41e65e&q={(event.data.split()[2]).decode('utf-8')}&key=AIzaSyAa8yy0GdcGPHdtD083HiGGx_S0vMPScDM&start={start}", headers={"x-referer": "https://explorer.apis.google.com"}) as r:
             response = await r.json()
             if response.get("error"):
-                return await event.answer("No results found.")
+                return await event.answer("No more results!")
             result = ""            
             for item in response["items"]:
                 title = item["title"]
@@ -76,7 +79,7 @@ async def next(event):
             response = await r.json()
             print(response["searchInformation"]["totalResults"])
             if response["searchInformation"]["totalResults"] == "0":
-                return await event.answer("No more results.")
+                return await event.answer("No more results!")
             result = ""
             for item in response["items"]:
                 title = item["title"]
